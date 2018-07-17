@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./App.css";
+import PropTypes from 'prop-types'
 
 class Tab extends Component {
   render() {
@@ -16,43 +17,66 @@ class Tab extends Component {
 }
 
 class TabList extends Component {
+  static contextTypes = {
+    activeIndex: PropTypes.number.isRequired,
+    onTabSelect: PropTypes.func.isRequired
+  }
+
+
   render() {
-    const { activeIndex } = this.props;
+    const { activeIndex } = this.context;
 
     const children = React.Children.map(this.props.children, (child, index) => {
       return React.cloneElement(child, {
         isActive: index === activeIndex,
-        onSelect: () => this.props.onTabSelect(index)
+        onSelect: () => this.context.onTabSelect(index)
       });
     });
     return <div>{children}</div>;
   }
 }
 
-class Tabs extends Component {
+class Tabs extends Component {  
+  static childContextTypes = {
+    activeIndex: PropTypes.number.isRequired,
+    onTabSelect: PropTypes.func.isRequired
+  }
+
   state = {
     activeIndex: 0
   };
+
+  //called every render
+  getChildContext(){
+    return {
+      activeIndex: this.state.activeIndex,
+      onTabSelect: this.selectTabIndex
+    }
+  }
 
   selectTabIndex = activeIndex => {
     this.setState({ activeIndex });
   };
 
   render() {
-    const children = React.Children.map(this.props.children, (child, index) => {
-      console.log(child);
-      return React.cloneElement(child, {
-        activeIndex: this.state.activeIndex,
-        onTabSelect: this.selectTabIndex
-      });
-    });
-    return <div>{children}</div>;
+    // const children = React.Children.map(this.props.children, (child, index) => {
+    //   console.log(child);
+    //   return React.cloneElement(child, {
+    //     activeIndex: this.state.activeIndex,
+    //     onTabSelect: this.selectTabIndex
+    //   });
+    // });
+    return <div>{this.props.children}</div>;
   }
 }
 
 class TabPanels extends Component {
+  static contextTypes = {
+    activeIndex: PropTypes.number.isRequired
+  }
+
   render() {
-    const { activeIndex } = this.props;
+    const { activeIndex } = this.context;
 
     return this.props.children[activeIndex];
   }
@@ -70,10 +94,14 @@ class DataTabs extends Component {
 
     return (
       <Tabs>
-        <TabList>{data.map(tab => <Tab>{tab.label}</Tab>)}</TabList>
-        <TabPanels>
-          {data.map(tab => <TabPanel>{tab.content}</TabPanel>)}
-        </TabPanels>
+        <div>
+          <TabList>{data.map(tab => <Tab>{tab.label}</Tab>)}</TabList>
+        </div>
+       <div>
+          <TabPanels>
+            {data.map(tab => <TabPanel>{tab.content}</TabPanel>)}
+          </TabPanels>
+       </div>
       </Tabs>
     );
   }
@@ -86,10 +114,13 @@ class App extends Component {
       { label: 2, content: "world" },
       { label: 3, content: "foo" }
     ];
- 
-    return <div className="App">
-      <DataTabs data={tabData} />
-    </div>;
+
+    return (
+      <div className="App">
+        <p>FooBar</p>
+        <DataTabs data={tabData} />
+      </div>
+    );
   }
 }
 
