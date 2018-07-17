@@ -18,7 +18,7 @@ class Tab extends Component {
 class TabList extends Component {
   render() {
     const { activeIndex } = this.props;
-    
+
     const children = React.Children.map(this.props.children, (child, index) => {
       return React.cloneElement(child, {
         isActive: index === activeIndex,
@@ -52,7 +52,7 @@ class Tabs extends Component {
 
 class TabPanels extends Component {
   render() {
-    const {activeIndex}=this.props;
+    const { activeIndex } = this.props;
 
     return this.props.children[activeIndex];
   }
@@ -64,26 +64,32 @@ class TabPanel extends Component {
   }
 }
 
-class App extends Component {
+class DataTabs extends Component {
   render() {
-    const tabData = [{ label: 5 }];
+    const { data } = this.props;
 
     return (
-      <div className="App">
-        <Tabs>
-          <TabList>
-            <Tab>1</Tab>
-            <Tab>2</Tab>
-            <Tab>3</Tab>
-          </TabList>
-          <TabPanels>
-            <TabPanel>hello</TabPanel>
-            <TabPanel>world</TabPanel>
-            <TabPanel>foo</TabPanel>
-          </TabPanels>
-        </Tabs>
-      </div>
+      <Tabs>
+        <TabList>{data.map(tab => <Tab>{tab.label}</Tab>)}</TabList>
+        <TabPanels>
+          {data.map(tab => <TabPanel>{tab.content}</TabPanel>)}
+        </TabPanels>
+      </Tabs>
     );
+  }
+}
+
+class App extends Component {
+  render() {
+    const tabData = [
+      { label: 1, content: "hello" },
+      { label: 2, content: "world" },
+      { label: 3, content: "foo" }
+    ];
+ 
+    return <div className="App">
+      <DataTabs data={tabData} />
+    </div>;
   }
 }
 
